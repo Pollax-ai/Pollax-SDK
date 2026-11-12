@@ -2,11 +2,13 @@
 
 from datetime import datetime
 from typing import Any, Dict, List, Literal, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class Agent(BaseModel):
     """AI Agent model"""
+
+    model_config = ConfigDict(extra="allow")
 
     id: str
     name: str
@@ -22,6 +24,7 @@ class Agent(BaseModel):
     is_active: bool = True
     tenant_id: str
     config: Optional[Dict[str, Any]] = None
+    knowledge_base_ids: Optional[List[str]] = None
     created_at: datetime
     updated_at: datetime
     calls_count: Optional[int] = None
@@ -75,34 +78,39 @@ class Contact(BaseModel):
 class Campaign(BaseModel):
     """Campaign model"""
 
+    model_config = ConfigDict(extra="allow")
+
     id: str
     name: str
     agent_id: Optional[str] = None
     agent_name: Optional[str] = None
-    status: Literal["draft", "scheduled", "running", "paused", "completed", "cancelled"]
+    status: Optional[Literal["draft", "scheduled", "running", "paused", "completed", "cancelled"]] = None
     scheduled_time: Optional[datetime] = None
     contacts: List[Contact] = Field(default_factory=list)
     total_contacts: int = 0
     completed_calls: int = 0
     successful_calls: int = 0
     failed_calls: int = 0
-    tenant_id: str
-    created_at: datetime
-    updated_at: datetime
+    tenant_id: Optional[str] = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
 
 class KnowledgeDocument(BaseModel):
     """Knowledge base document model"""
 
+    model_config = ConfigDict(extra="allow")
+
     id: str
-    name: str
-    type: Literal["pdf", "txt", "docx", "url"]
+    name: Optional[str] = None
+    type: Optional[Literal["pdf", "txt", "docx", "url"]] = None
     content: Optional[str] = None
     url: Optional[str] = None
     chunks_count: int = 0
-    status: Literal["processing", "ready", "failed"]
-    tenant_id: str
-    created_at: datetime
+    status: Optional[Literal["processing", "ready", "failed"]] = None
+    tenant_id: Optional[str] = None
+    created_at: Optional[datetime] = None
+    agent_id: Optional[str] = None
 
 
 class DashboardStats(BaseModel):
@@ -131,13 +139,18 @@ class Integration(BaseModel):
 class PhoneNumber(BaseModel):
     """Phone number model"""
 
+    model_config = ConfigDict(extra="allow")
+
     id: str
     phone_number: str
-    country_code: str
-    capabilities: Dict[str, bool]
-    is_active: bool
-    tenant_id: str
-    created_at: datetime
+    country_code: Optional[str] = None
+    capabilities: Optional[Dict[str, bool]] = None
+    is_active: Optional[bool] = True
+    tenant_id: Optional[str] = None
+    created_at: Optional[datetime] = None
+    agent_id: Optional[str] = None
+    auto_renew: Optional[bool] = None
+    status: Optional[str] = None
 
 
 class ApiKey(BaseModel):

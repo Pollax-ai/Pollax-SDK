@@ -157,6 +157,10 @@ class AgentsResource:
         response = self._client.request("PUT", f"/api/v1/agents/{agent_id}", json=data)
         return Agent(**response)
 
+    def set_knowledge_base_ids(self, agent_id: str, knowledge_base_ids: List[str]) -> Agent:
+        """Bind knowledge document IDs to an agent."""
+        return self.update(agent_id, knowledge_base_ids=knowledge_base_ids)
+
     def delete(self, agent_id: str) -> dict:
         """
         Delete an agent.

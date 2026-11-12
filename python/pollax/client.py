@@ -16,6 +16,8 @@ from .resources.phone_numbers import PhoneNumbersResource
 from .resources.api_keys import ApiKeysResource
 from .resources.voice_cloning import VoiceCloningResource
 from .resources.webhooks import WebhooksResource
+from .resources.wallet import WalletResource
+from .resources.tts import TtsResource
 from .errors import PollaxError, AuthenticationError, NotFoundError, RateLimitError
 
 
@@ -68,7 +70,7 @@ class Pollax:
         headers = {
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
-            "User-Agent": "Pollax-SDK-Python/1.1.0",
+            "User-Agent": "Pollax-SDK-Python/1.3.0",
         }
 
         if tenant_id:
@@ -91,6 +93,8 @@ class Pollax:
         self.api_keys = ApiKeysResource(self)
         self.voice_cloning = VoiceCloningResource(self)
         self.webhooks = WebhooksResource(self)
+        self.wallet = WalletResource(self)
+        self.tts = TtsResource(self)
 
     def request(
         self,
@@ -100,6 +104,7 @@ class Pollax:
         json: Optional[dict] = None,
         params: Optional[dict] = None,
         files: Optional[dict] = None,
+        data: Optional[dict] = None,
         headers: Optional[dict] = None,
         _retries: int = 0,
     ) -> dict:
@@ -112,6 +117,7 @@ class Pollax:
             json: JSON request body
             params: Query parameters
             files: Files to upload
+            data: Multipart form fields (used with files)
             headers: Extra per-request headers (merged over client defaults).
                      Used to pass Idempotency-Key on mutating requests.
             _retries: Internal retry counter
@@ -126,7 +132,7 @@ class Pollax:
             RateLimitError: When rate limit exceeded
         """
         try:
-            if files:
+            if files or data is not None:
                 # Remove Content-Type for multipart/form-data
                 base_headers = {k: v for k, v in self.client.headers.items() if k != "Content-Type"}
                 if headers:
@@ -135,6 +141,7 @@ class Pollax:
                     method,
                     path,
                     params=params,
+                    data=data,
                     files=files,
                     headers=base_headers,
                 )
@@ -169,7 +176,16 @@ class Pollax:
             if status_code == 429 and _retries < self.max_retries:
                 retry_after = int(e.response.headers.get("Retry-After", "1"))
                 time.sleep(retry_after)
-                return self.request(method, path, json=json, params=params, files=files, headers=headers, _retries=_retries + 1)
+                return self.request(
+                    method,
+                    path,
+                    json=json,
+                    params=params,
+                    files=files,
+                    data=data,
+                    headers=headers,
+                    _retries=_retries + 1,
+                )
 
             # Parse error message
             try:
@@ -193,7 +209,16 @@ class Pollax:
             if _retries < self.max_retries:
                 delay = 2 ** _retries  # Exponential backoff
                 time.sleep(delay)
-                return self.request(method, path, json=json, params=params, files=files, headers=headers, _retries=_retries + 1)
+                return self.request(
+                    method,
+                    path,
+                    json=json,
+                    params=params,
+                    files=files,
+                    data=data,
+                    headers=headers,
+                    _retries=_retries + 1,
+                )
 
             raise PollaxError(f"Network error: {str(e)}")
 

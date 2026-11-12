@@ -8,3 +8,5 @@ export * from './phone-numbers';
 export * from './api-keys';
 export * from './voice-cloning';
 export * from './webhooks';
+export * from './wallet';
+export * from './tts';

@@ -45,13 +45,15 @@ export class Campaigns {
    * List all campaigns
    * 
    * @example
-   * const campaigns = await pollax.campaigns.list();
+   * const campaigns = await pollax.campaigns.list({ status: 'running' });
    */
-  async list(): Promise<Campaign[]> {
-    return this.request<Campaign[]>({
+  async list(params?: { status?: string }): Promise<Campaign[]> {
+    const res = await this.request<Campaign[] | { data?: Campaign[] }>({
       method: 'GET',
       url: '/api/v1/campaigns',
+      params,
     });
+    return Array.isArray(res) ? res : (res?.data ?? []);
   }
 
   /**
@@ -185,5 +187,71 @@ export class Campaigns {
       method: 'GET',
       url: `/api/v1/campaigns/${campaignId}/stats`,
     });
+  }
+
+  /**
+   * List per-contact call lines for a campaign.
+   */
+  async listCallLines(
+    campaignId: string,
+    params?: { limit?: number },
+  ): Promise<any> {
+    return this.request({
+      method: 'GET',
+      url: `/api/v1/campaigns/${campaignId}/call-lines`,
+      params,
+    });
+  }
+
+  /**
+   * Preview which lines would be included in a selective re-run.
+   */
+  async rerunPreview(
+    campaignId: string,
+    params?: { filter?: string; max_short_seconds?: number },
+  ): Promise<any> {
+    return this.request({
+      method: 'GET',
+      url: `/api/v1/campaigns/${campaignId}/rerun-preview`,
+      params,
+    });
+  }
+
+  /**
+   * Create a new campaign from filtered lines of an existing one.
+   */
+  async rerun(
+    campaignId: string,
+    body: {
+      filter?: string;
+      max_short_seconds?: number;
+      name?: string;
+      start_immediately?: boolean;
+    } = {},
+  ): Promise<Campaign> {
+    return this.request<Campaign>({
+      method: 'POST',
+      url: `/api/v1/campaigns/${campaignId}/rerun`,
+      data: body,
+    });
+  }
+
+  /**
+   * Preview contacts from a CSV/XLSX upload before creating a campaign.
+   */
+  async previewContacts(file: File | Buffer | Blob): Promise<any> {
+    const formData = new FormData();
+    formData.append('file', file as any);
+
+    return this.request({
+      method: 'POST',
+      url: '/api/v1/campaigns/contacts/preview',
+      data: formData,
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      maxBodyLength: Infinity,
+      maxContentLength: Infinity,
+    } as AxiosRequestConfig);
   }
 }

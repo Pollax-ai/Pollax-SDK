@@ -17,6 +17,7 @@ export interface Agent {
   is_active: boolean;
   tenant_id: string;
   config?: Record<string, any>;
+  knowledge_base_ids?: string[];
   created_at: string;
   updated_at: string;
   calls_count?: number;
@@ -48,6 +49,7 @@ export interface UpdateAgentParams {
   voice_id?: string;
   is_active?: boolean;
   config?: Record<string, any>;
+  knowledge_base_ids?: string[];
 }
 
 export interface ListAgentsParams {
@@ -209,6 +211,26 @@ export interface UploadDocumentParams {
   content?: string;
   url?: string;
   type?: 'pdf' | 'txt' | 'docx' | 'url';
+  agent_id?: string;
+}
+
+export interface CreateKnowledgeParams {
+  name: string;
+  content: string;
+  type?: 'pdf' | 'txt' | 'docx' | 'url';
+  agent_id?: string;
+}
+
+export interface AddKnowledgeUrlParams {
+  url: string;
+  name?: string;
+  agent_id?: string;
+}
+
+export interface UploadKnowledgeFileParams {
+  filename?: string;
+  name?: string;
+  agent_id?: string;
 }
 
 /**
@@ -267,6 +289,9 @@ export interface PhoneNumber {
   is_active: boolean;
   tenant_id: string;
   created_at: string;
+  agent_id?: string | null;
+  auto_renew?: boolean;
+  status?: string;
 }
 
 export interface SearchPhoneNumbersParams {
@@ -274,6 +299,80 @@ export interface SearchPhoneNumbersParams {
   area_code?: string;
   contains?: string;
   limit?: number;
+}
+
+export interface UpdatePhoneNumberParams {
+  auto_renew?: boolean;
+  agent_id?: string | null;
+  [key: string]: any;
+}
+
+export interface AssignPhoneNumberParams {
+  agent_id: string;
+}
+
+export interface ProvisionPhoneNumberParams {
+  inbound_provider?: string;
+  [key: string]: any;
+}
+
+export interface NumberRequest {
+  id?: string;
+  status?: string;
+  name?: string;
+  email?: string;
+  phone?: string;
+  note?: string;
+  created_at?: string;
+  [key: string]: any;
+}
+
+export interface NumberRequestParams {
+  name?: string;
+  email?: string;
+  phone?: string;
+  note?: string;
+  requested_via?: string;
+  [key: string]: any;
+}
+
+/**
+ * Wallet types
+ */
+
+export interface WalletBalance {
+  balance_inr?: number;
+  balance_paise?: number;
+  currency?: string;
+  [key: string]: any;
+}
+
+export interface WalletLedgerParams {
+  limit?: number;
+  page?: number;
+}
+
+export interface WalletLedgerPage {
+  data?: any[];
+  pagination?: Record<string, any> | null;
+  [key: string]: any;
+}
+
+/**
+ * TTS / broadcast types
+ */
+
+export interface BroadcastPreviewParams {
+  text: string;
+  language?: string;
+  speed?: number;
+  resolved?: boolean;
+}
+
+export interface BroadcastPreviewResult {
+  audio_url?: string;
+  url?: string;
+  [key: string]: any;
 }
 
 /**

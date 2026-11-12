@@ -16,6 +16,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `{{variable}}` (also accepts `{variable}`) for agent prompts/welcome, `{variable}`
   for the one-way `announcement_message`. No API or signature change.
 
+## [1.3.0] - 2026-11-12
+
+Onesaz path-B expansion: close SDK gaps so CRM integrators can use the SDK
+instead of raw axios against `/api/v1`. See `docs/SDK_ONESAZ_GAP_CHECKLIST.md`.
+
+### Added
+
+#### Both SDKs
+- **`wallet` resource** — `get`/`retrieve`, `ledger({ limit })`
+  (`GET /wallet`, `GET /wallet/ledger`).
+- **`tts` resource** — `broadcastPreview` / `broadcast_preview`
+  (`POST /tts/broadcast-preview`).
+- **Phone numbers** — `getNumberRequest` / `requestNumber`, `update`,
+  `assign` / `unassign`, `provision` / `deprovision`.
+- **Knowledge** — `create` (JSON text), `uploadFile` → `POST /knowledge/upload`,
+  `addUrl` → `POST /knowledge/url`, `stats` → `GET /knowledge/stats`.
+- **Agents** — `setKnowledgeBaseIds` / `set_knowledge_base_ids`;
+  `knowledge_base_ids` on update types / models.
+- **Calls** — `listTransfers`, `broadcastHistory`, `getAnalysis`.
+- **Campaigns** — `list({ status })`, `listCallLines`, `rerunPreview`,
+  `rerun`, `previewContacts`.
+
+### Changed
+- User-Agent strings bumped to `1.3.0`.
+- Package versions: npm `pollax@1.3.0`, PyPI `pollax==1.3.0`.
+- Phone search unwraps `{ numbers: [...] }` envelopes.
+- Python `request()` accepts multipart `data=` form fields alongside `files=`.
+
+
 ## [1.1.0] - 2026-06-04
 
 This release aligns the SDKs with the public API surface shipped in the

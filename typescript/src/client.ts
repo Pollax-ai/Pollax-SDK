@@ -10,6 +10,8 @@ import { PhoneNumbers } from './resources/phone-numbers';
 import { ApiKeys } from './resources/api-keys';
 import { VoiceCloning } from './resources/voice-cloning';
 import { Webhooks } from './resources/webhooks';
+import { Wallet } from './resources/wallet';
+import { Tts } from './resources/tts';
 import { PollaxError } from './errors';
 
 /**
@@ -78,6 +80,8 @@ export class Pollax {
   public readonly apiKeys: ApiKeys;
   public readonly voiceCloning: VoiceCloning;
   public readonly webhooks: Webhooks;
+  public readonly wallet: Wallet;
+  public readonly tts: Tts;
 
   constructor(config: PollaxConfig) {
     if (!config.apiKey) {
@@ -89,7 +93,7 @@ export class Pollax {
     const headers: Record<string, string> = {
       'Authorization': `Bearer ${config.apiKey}`,
       'Content-Type': 'application/json',
-      'User-Agent': 'Pollax-SDK-TypeScript/1.1.0',
+      'User-Agent': 'Pollax-SDK-TypeScript/1.3.0',
     };
 
     if (config.tenantId) {
@@ -149,6 +153,8 @@ export class Pollax {
     this.apiKeys = new ApiKeys(this.request.bind(this));
     this.voiceCloning = new VoiceCloning(this.request.bind(this));
     this.webhooks = new Webhooks(this.request.bind(this));
+    this.wallet = new Wallet(this.request.bind(this));
+    this.tts = new Tts(this.request.bind(this));
   }
 
   /**

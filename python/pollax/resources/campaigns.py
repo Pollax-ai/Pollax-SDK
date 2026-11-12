@@ -1,6 +1,6 @@
 """Campaigns resource"""
 
-from typing import List, Optional, TYPE_CHECKING
+from typing import Any, BinaryIO, List, Optional, TYPE_CHECKING, Union
 from ..models import Campaign, Contact
 
 if TYPE_CHECKING:
@@ -53,10 +53,12 @@ class CampaignsResource:
         response = self._client.request("POST", "/api/v1/campaigns", json=data, headers=headers)
         return Campaign(**response)
 
-    def list(self) -> List[Campaign]:
-        """List all campaigns."""
-        response = self._client.request("GET", "/api/v1/campaigns")
-        return [Campaign(**item) for item in response]
+    def list(self, status: Optional[str] = None) -> List[Campaign]:
+        """List all campaigns, optionally filtered by status."""
+        params = {"status": status} if status else None
+        response = self._client.request("GET", "/api/v1/campaigns", params=params)
+        items = response if isinstance(response, list) else (response.get("data") or [])
+        return [Campaign(**item) for item in items]
 
     def retrieve(self, campaign_id: str) -> Campaign:
         """Get a single campaign by ID."""
@@ -95,3 +97,63 @@ class CampaignsResource:
     def get_stats(self, campaign_id: str) -> dict:
         """Get campaign statistics."""
         return self._client.request("GET", f"/api/v1/campaigns/{campaign_id}/stats")
+
+    def list_call_lines(self, campaign_id: str, limit: Optional[int] = None) -> Any:
+        """List per-contact call lines for a campaign."""
+        params = {"limit": limit} if limit is not None else None
+        return self._client.request(
+            "GET",
+            f"/api/v1/campaigns/{campaign_id}/call-lines",
+            params=params,
+        )
+
+    def rerun_preview(
+        self,
+        campaign_id: str,
+        filter: Optional[str] = None,
+        max_short_seconds: Optional[float] = None,
+    ) -> dict:
+        """Preview which lines would be included in a selective re-run."""
+        params = {}
+        if filter:
+            params["filter"] = filter
+        if max_short_seconds is not None:
+            params["max_short_seconds"] = max_short_seconds
+        return self._client.request(
+            "GET",
+            f"/api/v1/campaigns/{campaign_id}/rerun-preview",
+            params=params or None,
+        )
+
+    def rerun(
+        self,
+        campaign_id: str,
+        filter: str = "not_meaningfully_completed",
+        max_short_seconds: Optional[float] = None,
+        name: Optional[str] = None,
+        start_immediately: bool = True,
+    ) -> Campaign:
+        """Create a new campaign from filtered lines of an existing one."""
+        body: dict = {
+            "filter": filter,
+            "start_immediately": start_immediately,
+        }
+        if max_short_seconds is not None:
+            body["max_short_seconds"] = max_short_seconds
+        if name:
+            body["name"] = name
+        response = self._client.request(
+            "POST",
+            f"/api/v1/campaigns/{campaign_id}/rerun",
+            json=body,
+        )
+        return Campaign(**response)
+
+    def preview_contacts(self, file: Union[BinaryIO, bytes, tuple]) -> dict:
+        """Preview contacts from a CSV/XLSX upload before creating a campaign."""
+        files = {"file": file}
+        return self._client.request(
+            "POST",
+            "/api/v1/campaigns/contacts/preview",
+            files=files,
+        )

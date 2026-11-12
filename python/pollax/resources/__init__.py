@@ -9,6 +9,8 @@ from .integrations import IntegrationsResource
 from .phone_numbers import PhoneNumbersResource
 from .api_keys import ApiKeysResource
 from .voice_cloning import VoiceCloningResource
+from .wallet import WalletResource
+from .tts import TtsResource
 
 __all__ = [
     "AgentsResource",
@@ -20,4 +22,6 @@ __all__ = [
     "PhoneNumbersResource",
     "ApiKeysResource",
     "VoiceCloningResource",
+    "WalletResource",
+    "TtsResource",
 ]

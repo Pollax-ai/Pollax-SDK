@@ -156,4 +156,45 @@ export class Calls {
       url: `/api/v1/calls/${callSid}/recording`,
     });
   }
+
+  /**
+   * Best-effort post-call analysis (tries /analytics then /analysis).
+   * Returns null if neither endpoint is available.
+   */
+  async getAnalysis(callSid: string): Promise<any | null> {
+    for (const path of [
+      `/api/v1/calls/${callSid}/analytics`,
+      `/api/v1/calls/${callSid}/analysis`,
+    ]) {
+      try {
+        const res = await this.request<any>({ method: 'GET', url: path });
+        return res?.data ?? res?.analysis ?? res ?? null;
+      } catch {
+        // try next path
+      }
+    }
+    return null;
+  }
+
+  /**
+   * List call transfers (warm/cold handoffs) with optional filters + pagination.
+   */
+  async listTransfers(params?: Record<string, any>): Promise<any> {
+    return this.request({
+      method: 'GET',
+      url: '/api/v1/calls/transfers',
+      params,
+    });
+  }
+
+  /**
+   * Recent one-way broadcast history for the account.
+   */
+  async broadcastHistory(params?: { limit?: number }): Promise<any> {
+    return this.request({
+      method: 'GET',
+      url: '/api/v1/calls/broadcast-history',
+      params,
+    });
+  }
 }

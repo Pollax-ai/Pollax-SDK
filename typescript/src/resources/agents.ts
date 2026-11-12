@@ -93,6 +93,16 @@ export class Agents {
    *   message: 'Hello, how can you help me?',
    * });
    */
+  /**
+   * Bind knowledge document IDs to an agent.
+   *
+   * @example
+   * await pollax.agents.setKnowledgeBaseIds('agent_123', ['doc_1', 'doc_2']);
+   */
+  async setKnowledgeBaseIds(agentId: string, knowledgeBaseIds: string[]): Promise<Agent> {
+    return this.update(agentId, { knowledge_base_ids: knowledgeBaseIds });
+  }
+
   async test(agentId: string, params: { message: string }): Promise<{ response: string }> {
     return this.request({
       method: 'POST',

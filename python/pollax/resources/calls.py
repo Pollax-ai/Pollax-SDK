@@ -135,3 +135,29 @@ class CallsResource:
     def get_recording(self, call_sid: str) -> dict:
         """Get call recording URL."""
         return self._client.request("GET", f"/api/v1/calls/{call_sid}/recording")
+
+    def get_analysis(self, call_sid: str) -> Optional[dict]:
+        """Best-effort post-call analysis (tries /analytics then /analysis)."""
+        from ..errors import PollaxError, NotFoundError
+
+        for path in (
+            f"/api/v1/calls/{call_sid}/analytics",
+            f"/api/v1/calls/{call_sid}/analysis",
+        ):
+            try:
+                res = self._client.request("GET", path)
+                if isinstance(res, dict):
+                    return res.get("data") or res.get("analysis") or res
+                return res
+            except (NotFoundError, PollaxError):
+                continue
+        return None
+
+    def list_transfers(self, **params) -> dict:
+        """List call transfers with optional filters + pagination."""
+        return self._client.request("GET", "/api/v1/calls/transfers", params=params or None)
+
+    def broadcast_history(self, limit: Optional[int] = None) -> dict:
+        """Recent one-way broadcast history for the account."""
+        params = {"limit": limit} if limit is not None else None
+        return self._client.request("GET", "/api/v1/calls/broadcast-history", params=params)
