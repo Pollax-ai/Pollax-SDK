@@ -105,8 +105,17 @@ Update an agent.
 | description | string | No | New description |
 | system_prompt | string | No | New system prompt |
 | is_active | boolean | No | Active status |
+| knowledge_base_ids | string[] | No | Knowledge document IDs bound to the agent |
 
 **Returns:** `Agent`
+
+### setKnowledgeBaseIds() / set_knowledge_base_ids()
+
+Bind knowledge documents to an agent (`PUT` with `knowledge_base_ids`).
+
+```typescript
+await pollax.agents.setKnowledgeBaseIds('agent_123', ['doc_1', 'doc_2']);
+```
 
 ### delete()
 
@@ -223,6 +232,18 @@ Get call recording URL.
 
 **Returns:** `{ url: string }`
 
+### getAnalysis() / get_analysis()
+
+Best-effort post-call analysis (`/analytics` then `/analysis`). Returns `null` if unavailable.
+
+### listTransfers() / list_transfers()
+
+`GET /calls/transfers` — transfer history with optional filters/pagination.
+
+### broadcastHistory() / broadcast_history()
+
+`GET /calls/broadcast-history` — recent one-way broadcasts (`limit` optional).
+
 ## Campaigns
 
 ### create()
@@ -257,7 +278,29 @@ const campaign = await pollax.campaigns.create({
 
 List all campaigns.
 
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| status | string | No | Filter by campaign status |
+
 **Returns:** `Campaign[]`
+
+### listCallLines() / list_call_lines()
+
+`GET /campaigns/:id/call-lines` — per-contact lines (`limit` optional).
+
+### rerunPreview() / rerun_preview()
+
+`GET /campaigns/:id/rerun-preview` — preview selective re-run filters.
+
+### rerun()
+
+`POST /campaigns/:id/rerun` — create a campaign from filtered lines.
+
+### previewContacts() / preview_contacts()
+
+`POST /campaigns/contacts/preview` — parse CSV/XLSX contacts before create.
 
 ### retrieve()
 
@@ -406,6 +449,68 @@ Search the knowledge base.
 
 **Returns:** Search results
 
+### create()
+
+Create a plain-text knowledge document (`POST /knowledge` JSON). Prefer this for guided Q&A so `retrieve` returns readable `content`.
+
+```typescript
+await pollax.knowledge.create({
+  name: 'Fees FAQ',
+  content: 'Annual tuition is ₹45,000.',
+  type: 'txt',
+});
+```
+
+### uploadFile() / upload_file()
+
+Binary upload via `POST /knowledge/upload`.
+
+### addUrl() / add_url()
+
+Ingest a public URL (`POST /knowledge/url`).
+
+### stats()
+
+`GET /knowledge/stats` — aggregate knowledge stats for the account.
+
+## Phone numbers
+
+### list() / search() / purchase() / release()
+
+Inventory and purchase flows (unchanged from 1.2).
+
+### getNumberRequest() / requestNumber()
+
+Dedicated-number support ticket (`GET`/`POST /phone-numbers/number-request`).
+
+### update()
+
+Update a number (e.g. `{ auto_renew: false }`).
+
+### assign() / unassign()
+
+Bind or clear an agent on a number.
+
+### provision() / deprovision()
+
+Enable or disable inbound telephony for a number.
+
+## Wallet
+
+### get() / retrieve()
+
+`GET /wallet` — balance (`balance_inr`, `balance_paise`, …).
+
+### ledger()
+
+`GET /wallet/ledger` — ledger entries (`limit`, `page`).
+
+## TTS
+
+### broadcastPreview() / broadcast_preview()
+
+`POST /tts/broadcast-preview` — preview one-way broadcast audio (`text`, `language`, `speed`, `resolved`).
+
 ## Analytics
 
 ### getStats()
@@ -492,7 +597,7 @@ Export analytics data.
   agent_id: string;
   to_number: string;
   from_number?: string;
-  status: 'queued' | 'ringing' | 'in-progress' | 'completed' | 'failed';
+  status: 'initiated' | 'ringing' | 'in_progress' | 'completed' | 'failed' | 'busy' | 'no_answer' | 'voicemail';
   direction: 'inbound' | 'outbound';
   duration?: number;
   start_time?: string;

@@ -171,15 +171,29 @@ Documentation improvements are always welcome:
 - Add examples
 - Improve code comments
 
+## Releasing (maintainers)
+
+1. Bump versions in `typescript/package.json` and `python/pyproject.toml` + `python/pollax/__init__.py`
+2. Update `CHANGELOG.md`
+3. Merge to `main`
+4. Create a GitHub Release / tag `vX.Y.Z` — the **Release** workflow publishes npm + PyPI when `NPM_TOKEN` and `PYPI_TOKEN` secrets are set (repo admin)
+5. Verify: `npm view pollax version` and PyPI
+
+Manual fallback (if Actions secrets are missing):
+
+```bash
+cd typescript && npm publish --access public
+cd ../python && python -m build && twine upload dist/*
+```
+
 ## Questions?
 
-- [Discord Community](https://discord.gg/pollax)
 - Email: support@pollax.ai
-- [GitHub Issues](https://github.com/pollax/pollax-sdk/issues)
+- [GitHub Issues](https://github.com/Pollax-ai/Pollax-SDK/issues)
 
 ## Code of Conduct
 
-Be respectful, inclusive, and professional. We're all here to build great software together.
+See [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md).
 
 ## License
 

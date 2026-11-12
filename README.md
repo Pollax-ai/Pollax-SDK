@@ -1,69 +1,84 @@
 # Pollax SDK
 
-Official SDKs for the Pollax AI Voice Platform
+Official TypeScript and Python client libraries for the [Pollax](https://pollax.ai) AI Voice Platform.
 
 [![npm version](https://img.shields.io/npm/v/pollax.svg)](https://www.npmjs.com/package/pollax)
 [![PyPI version](https://img.shields.io/pypi/v/pollax.svg)](https://pypi.org/project/pollax/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![CI](https://github.com/Pollax-ai/Pollax-SDK/actions/workflows/ci.yml/badge.svg)](https://github.com/Pollax-ai/Pollax-SDK/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
-## Available SDKs
-
-- **[TypeScript/JavaScript](./typescript)** - For Node.js and Browser
-- **[Python](./python)** - For Python 3.8+
-- **[Go](./go)** - For Go 1.18+
-
-## Quick Start
-
-### TypeScript/JavaScript
+## Install
 
 ```bash
+# TypeScript / JavaScript
 npm install pollax
+
+# Python 3.8+
+pip install pollax
 ```
 
+Go SDK: **coming soon** (not published yet).
+
+## Auth
+
+Create an API key in the Pollax dashboard, then:
+
 ```typescript
-import Pollax from 'pollax';
+import { Pollax } from 'pollax';
 
 const pollax = new Pollax({
-  apiKey: 'sk_live_...',
+  apiKey: process.env.POLLAX_API_KEY!, // e.g. sk_test_...
 });
+```
 
-// Create an AI agent
+```python
+import os
+from pollax import Pollax
+
+pollax = Pollax(api_key=os.environ['POLLAX_API_KEY'])
+```
+
+Never commit live keys. See [SECURITY.md](./SECURITY.md).
+
+## Quick start
+
+### TypeScript
+
+```typescript
+import { Pollax } from 'pollax';
+
+const pollax = new Pollax({ apiKey: process.env.POLLAX_API_KEY! });
+
 const agent = await pollax.agents.create({
   name: 'Customer Support Agent',
-  systemPrompt: 'You are a helpful customer support agent.',
-  voice: 'alloy',
+  system_prompt: 'You are a helpful customer support agent.',
+  voice_id: 'alloy',
   model: 'gpt-4',
 });
 
-// Make a call
 const call = await pollax.calls.create({
-  agentId: agent.id,
-  toNumber: '+1234567890',
+  agent_id: agent.id,
+  to_number: '+1234567890',
 });
 
-console.log('Call initiated:', call.callSid);
+console.log('Call initiated:', call.call_sid);
 ```
 
 ### Python
 
-```bash
-pip install pollax
-```
-
 ```python
+import os
 from pollax import Pollax
 
-pollax = Pollax(api_key='sk_live_...')
+pollax = Pollax(api_key=os.environ['POLLAX_API_KEY'])
 
-# Create an AI agent
 agent = pollax.agents.create(
     name='Customer Support Agent',
     system_prompt='You are a helpful customer support agent.',
-    voice='alloy',
+    voice_id='alloy',
     model='gpt-4',
 )
 
-# Make a call
 call = pollax.calls.create(
     agent_id=agent.id,
     to_number='+1234567890',
@@ -72,46 +87,25 @@ call = pollax.calls.create(
 print(f'Call initiated: {call.call_sid}')
 ```
 
-### Go
+## Resources (1.3+)
 
-```bash
-go get github.com/pollax/pollax-go
-```
-
-```go
-import "github.com/pollax/pollax-go"
-
-client := pollax.NewClient("sk_live_...")
-
-// Create an AI agent
-agent, _ := client.Agents.Create(&pollax.AgentCreateParams{
-    Name:         "Customer Support Agent",
-    SystemPrompt: "You are a helpful customer support agent.",
-    Voice:        "alloy",
-    Model:        "gpt-4",
-})
-
-// Make a call
-call, _ := client.Calls.Create(&pollax.CallCreateParams{
-    AgentID:  agent.ID,
-    ToNumber: "+1234567890",
-})
-
-fmt.Printf("Call initiated: %s\n", call.CallSID)
-```
+| Resource | Examples |
+|----------|----------|
+| `agents` | create, list, update, `setKnowledgeBaseIds` |
+| `calls` | create, list, listPage, transfer, `listTransfers`, `broadcastHistory`, `getAnalysis` |
+| `campaigns` | create, list, start/pause/resume/complete, `listCallLines`, `rerun`, `previewContacts` |
+| `knowledge` | create (text), upload, `uploadFile`, `addUrl`, search, stats |
+| `phoneNumbers` | list, search, purchase, assign/unassign, provision/deprovision, number request |
+| `wallet` | get balance, ledger |
+| `tts` | `broadcastPreview` |
+| `webhooks` | subscriptions + `Pollax.verifyWebhookSignature` |
 
 ## Personalizing calls with variables
 
-Pass per-call `variables` to make the agent greet each caller by name and speak
-their specific data (balance, due date, order status, …). The values are
-substituted into the agent's **system prompt** and **welcome message**, and are
-also given to the agent as caller context so it can answer follow-up questions
-accurately ("what's my outstanding balance?").
-
 ```typescript
 const call = await pollax.calls.create({
-  agentId: agent.id,
-  toNumber: '+1234567890',
+  agent_id: agent.id,
+  to_number: '+1234567890',
   variables: {
     contact_name: 'Alex',
     amount_due: '120',
@@ -120,62 +114,34 @@ const call = await pollax.calls.create({
 });
 ```
 
-```python
-call = pollax.calls.create(
-    agent_id=agent.id,
-    to_number='+1234567890',
-    variables={
-        'contact_name': 'Alex',
-        'amount_due': '120',
-        'due_date': '2025-07-01',
-    },
-)
-```
+Use `{{contact_name}}` in agent system prompts / welcome messages. Use `{contact_name}` in one-way `announcement_message`.
 
-Reference the variables in your agent's **system prompt** or **welcome message**
-with double braces:
+## Versioning
 
-> "Hello {{contact_name}}, this is Riya from Acme — I'm calling about your
-> outstanding balance of {{amount_due}}, due {{due_date}}."
+This project follows [Semantic Versioning](https://semver.org/):
 
-**Placeholder conventions**
+- **MAJOR** — breaking API or type changes
+- **MINOR** — new methods / endpoints (backward compatible)
+- **PATCH** — bug fixes and docs
 
-| Where | Syntax | Example |
-| --- | --- | --- |
-| Agent system prompt & welcome message | `{{variable}}` (also accepts `{variable}`) | `{{contact_name}}` |
-| One-way `announcement_message` | `{variable}` | `{contact_name}` |
-
-- Unknown placeholders (no matching variable) are left as-is and never read aloud.
-- The same `variables` work on **campaigns** — set them per contact so every call
-  in a bulk run is personalized.
-
-## Features
-
-- **AI Agent Management** - Create and manage voice agents
-- **Voice Calls** - Initiate, manage, and monitor calls
-- **Campaigns** - Run bulk calling campaigns
-- **Knowledge Base** - Upload documents and manage knowledge
-- **Analytics** - Get call metrics and performance data
-- **Integrations** - Connect with CRM and communication tools
-- **Real-time Events** - WebSocket support for live updates
-- **Type Safety** - Full TypeScript definitions
-- **Error Handling** - Comprehensive error types
-- **Retry Logic** - Automatic retries with exponential backoff
+See [CHANGELOG.md](./CHANGELOG.md) and [docs/migration.md](./docs/migration.md).
 
 ## Documentation
 
-- [Full API Documentation](https://docs.pollax.ai)
-- [Quick Start Guide](./docs/quickstart.md)
-- [API Reference](./docs/api-reference.md)
+- [Quick start](./docs/quickstart.md)
+- [API reference](./docs/api-reference.md)
+- [Migration (1.2 → 1.3)](./docs/migration.md)
+- [Best practices](./docs/best-practices.md)
 - [Examples](./examples)
-- [Best Practices](./docs/best-practices.md)
+- [Contributing](./CONTRIBUTING.md)
+- [Security](./SECURITY.md)
+- [Code of Conduct](./CODE_OF_CONDUCT.md)
 
 ## Support
 
-- [Discord Community](https://discord.gg/pollax)
-- Email: support@pollax.ai
-- [Report Issues](https://github.com/pollax/pollax-sdk/issues)
+- Email: [support@pollax.ai](mailto:support@pollax.ai)
+- Issues: [github.com/Pollax-ai/Pollax-SDK/issues](https://github.com/Pollax-ai/Pollax-SDK/issues)
 
 ## License
 
-MIT License - see [LICENSE](./LICENSE) for details.
+MIT — see [LICENSE](./LICENSE).

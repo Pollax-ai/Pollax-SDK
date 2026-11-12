@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Pollax support
+    url: mailto:support@pollax.ai
+    about: Account, billing, and API access questions
+  - name: Security vulnerability
+    url: https://github.com/Pollax-ai/Pollax-SDK/security/advisories/new
+    about: Report a security issue privately (see SECURITY.md)
