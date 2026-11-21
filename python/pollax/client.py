@@ -70,7 +70,7 @@ class Pollax:
         headers = {
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
-            "User-Agent": "Pollax-SDK-Python/1.3.0",
+            "User-Agent": "Pollax-SDK-Python/1.4.0",
         }
 
         if tenant_id:

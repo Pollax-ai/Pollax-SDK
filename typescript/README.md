@@ -115,6 +115,10 @@ const call = await pollax.calls.retrieve('CA123456');
 // End call
 await pollax.calls.end('CA123456');
 
+// Live in-flight calls (prefer over list() while active)
+const { count, data } = await pollax.calls.live({ limit: 100 });
+const { count: liveOnly } = await pollax.calls.liveCount();
+
 // Get transcript
 const transcript = await pollax.calls.getTranscript('CA123456');
 ```
@@ -134,6 +138,13 @@ const campaign = await pollax.campaigns.create({
 
 // Start campaign
 await pollax.campaigns.start('campaign_123');
+
+// Pause dialing only — or hang up live / ringing legs too
+await pollax.campaigns.pause('campaign_123');
+await pollax.campaigns.pause('campaign_123', { hangup_active: true });
+
+// Hang up live legs without pausing dialing
+await pollax.campaigns.hangupActive('campaign_123');
 
 // Get stats
 const stats = await pollax.campaigns.getStats('campaign_123');

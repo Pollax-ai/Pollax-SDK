@@ -116,6 +116,48 @@ export class Calls {
   }
 
   /**
+   * List live in-flight calls (Redis-backed mid-call state).
+   * Prefer this over repeatedly calling `list()` while calls are active.
+   *
+   * @example
+   * const { count, data } = await pollax.calls.live({ limit: 100 });
+   */
+  async live(params?: { limit?: number }): Promise<{
+    count: number;
+    data: Array<{
+      call_sid: string;
+      tenant_id?: string;
+      status: string;
+      from_number?: string | null;
+      to_number?: string | null;
+      direction?: string | null;
+      agent_id?: string | null;
+      campaign_id?: string | null;
+      updated_at?: string;
+    }>;
+    source?: string;
+  }> {
+    return this.request({
+      method: 'GET',
+      url: '/api/v1/calls/live',
+      params,
+    });
+  }
+
+  /**
+   * Count live in-flight calls for the authenticated tenant.
+   *
+   * @example
+   * const { count } = await pollax.calls.liveCount();
+   */
+  async liveCount(): Promise<{ count: number }> {
+    return this.request({
+      method: 'GET',
+      url: '/api/v1/calls/live/count',
+    });
+  }
+
+  /**
    * Transfer a call to another number
    * 
    * @example

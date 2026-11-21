@@ -112,15 +112,49 @@ export class Campaigns {
   }
 
   /**
-   * Pause a running campaign
-   * 
+   * Pause a running campaign.
+   *
+   * By default only stops new dials. Pass `{ hangup_active: true }` to also
+   * disconnect live / ringing legs (never-answered legs become `no_answer`).
+   *
    * @example
    * await pollax.campaigns.pause('campaign_123');
+   * await pollax.campaigns.pause('campaign_123', { hangup_active: true });
    */
-  async pause(campaignId: string): Promise<Campaign> {
-    return this.request<Campaign>({
+  async pause(
+    campaignId: string,
+    params?: { hangup_active?: boolean },
+  ): Promise<Campaign & { hangup?: any }> {
+    return this.request({
       method: 'POST',
       url: `/api/v1/campaigns/${campaignId}/pause`,
+      data: {
+        hangup_active: params?.hangup_active === true,
+      },
+    });
+  }
+
+  /**
+   * Hang up live / ringing campaign calls without pausing dialing.
+   *
+   * @example
+   * await pollax.campaigns.hangupActive('campaign_123');
+   */
+  async hangupActive(campaignId: string): Promise<{
+    campaign_id: string;
+    attempted: number;
+    results: Array<{
+      call_sid: string;
+      line_id: string;
+      status: string;
+      terminal_status?: string;
+      connected?: boolean;
+      error?: string;
+    }>;
+  }> {
+    return this.request({
+      method: 'POST',
+      url: `/api/v1/campaigns/${campaignId}/hangup-active`,
     });
   }
 

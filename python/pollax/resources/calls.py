@@ -119,6 +119,18 @@ class CallsResource:
         response = self._client.request("POST", f"/api/v1/calls/{call_sid}/end")
         return Call(**response)
 
+    def live(self, limit: Optional[int] = None) -> dict:
+        """List live in-flight calls (Redis-backed mid-call state).
+
+        Prefer this over repeatedly calling ``list()`` while calls are active.
+        """
+        params = {"limit": limit} if limit is not None else None
+        return self._client.request("GET", "/api/v1/calls/live", params=params)
+
+    def live_count(self) -> dict:
+        """Count live in-flight calls for the authenticated tenant."""
+        return self._client.request("GET", "/api/v1/calls/live/count")
+
     def transfer(self, call_sid: str, to_number: str) -> Call:
         """Transfer a call to another number."""
         response = self._client.request(

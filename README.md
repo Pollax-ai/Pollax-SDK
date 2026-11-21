@@ -87,18 +87,44 @@ call = pollax.calls.create(
 print(f'Call initiated: {call.call_sid}')
 ```
 
-## Resources (1.3+)
+## Resources (1.4+)
 
 | Resource | Examples |
 |----------|----------|
 | `agents` | create, list, update, `setKnowledgeBaseIds` |
-| `calls` | create, list, listPage, transfer, `listTransfers`, `broadcastHistory`, `getAnalysis` |
-| `campaigns` | create, list, start/pause/resume/complete, `listCallLines`, `rerun`, `previewContacts` |
+| `calls` | create, list, listPage, transfer, `listTransfers`, `broadcastHistory`, `getAnalysis`, **`live` / `liveCount`** |
+| `campaigns` | create, list, start/pause/resume/complete, **`pause({ hangup_active })`**, **`hangupActive`**, `listCallLines`, `rerun`, `previewContacts` |
 | `knowledge` | create (text), upload, `uploadFile`, `addUrl`, search, stats |
 | `phoneNumbers` | list, search, purchase, assign/unassign, provision/deprovision, number request |
 | `wallet` | get balance, ledger |
 | `tts` | `broadcastPreview` |
 | `webhooks` | subscriptions + `Pollax.verifyWebhookSignature` |
+
+### Campaign hangup + live calls (1.4)
+
+```typescript
+// Pause dialing only
+await pollax.campaigns.pause('campaign_123');
+
+// Pause and hang up live / ringing legs
+await pollax.campaigns.pause('campaign_123', { hangup_active: true });
+
+// Hang up live legs without pausing
+await pollax.campaigns.hangupActive('campaign_123');
+
+// Cheap live-call polling (Redis mid-call state)
+const { count, data } = await pollax.calls.live({ limit: 100 });
+const live = await pollax.calls.liveCount();
+```
+
+```python
+pollax.campaigns.pause('campaign_123')
+pollax.campaigns.pause('campaign_123', hangup_active=True)
+pollax.campaigns.hangup_active('campaign_123')
+
+live = pollax.calls.live(limit=100)
+count = pollax.calls.live_count()
+```
 
 ## Personalizing calls with variables
 
@@ -130,7 +156,7 @@ See [CHANGELOG.md](./CHANGELOG.md) and [docs/migration.md](./docs/migration.md).
 
 - [Quick start](./docs/quickstart.md)
 - [API reference](./docs/api-reference.md)
-- [Migration (1.2 → 1.3)](./docs/migration.md)
+- [Migration (1.2 → 1.3 / 1.4)](./docs/migration.md)
 - [Best practices](./docs/best-practices.md)
 - [Examples](./examples)
 - [Contributing](./CONTRIBUTING.md)

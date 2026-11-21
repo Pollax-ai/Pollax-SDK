@@ -79,10 +79,26 @@ class CampaignsResource:
         response = self._client.request("POST", f"/api/v1/campaigns/{campaign_id}/start")
         return Campaign(**response)
 
-    def pause(self, campaign_id: str) -> Campaign:
-        """Pause a running campaign."""
-        response = self._client.request("POST", f"/api/v1/campaigns/{campaign_id}/pause")
+    def pause(self, campaign_id: str, *, hangup_active: bool = False) -> Campaign:
+        """Pause a running campaign.
+
+        By default only stops new dials. Pass ``hangup_active=True`` to also
+        disconnect live / ringing legs (never-answered legs become ``no_answer``).
+        The hangup summary (if any) is available on ``campaign.hangup``.
+        """
+        response = self._client.request(
+            "POST",
+            f"/api/v1/campaigns/{campaign_id}/pause",
+            json={"hangup_active": bool(hangup_active)},
+        )
         return Campaign(**response)
+
+    def hangup_active(self, campaign_id: str) -> dict:
+        """Hang up live / ringing campaign calls without pausing dialing."""
+        return self._client.request(
+            "POST",
+            f"/api/v1/campaigns/{campaign_id}/hangup-active",
+        )
 
     def resume(self, campaign_id: str) -> Campaign:
         """Resume a paused campaign."""

@@ -62,3 +62,26 @@ const pollax = new Pollax({
 ```
 
 See [SDK_ONESAZ_GAP_CHECKLIST.md](./SDK_ONESAZ_GAP_CHECKLIST.md) for the full method ↔ endpoint map.
+
+---
+
+# Migration guide: 1.3 → 1.4
+
+Pollax SDK **1.4.0** adds campaign hangup controls and cheap live-call polling. No breaking changes.
+
+## Install
+
+```bash
+npm install pollax@^1.4.0
+# or
+pip install "pollax>=1.4.0"
+```
+
+## New methods
+
+| Area | TypeScript | Python |
+|------|------------|--------|
+| Campaigns | `pause(id, { hangup_active })`, `hangupActive(id)` | `pause(..., hangup_active=True)`, `hangup_active(id)` |
+| Calls | `live({ limit })`, `liveCount()` | `live(limit=…)`, `live_count()` |
+
+`pause(id)` with no args still only stops new dials (same as 1.3). Pass `hangup_active: true` to also disconnect live / ringing legs.

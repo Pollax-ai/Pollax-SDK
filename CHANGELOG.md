@@ -16,6 +16,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `{{variable}}` (also accepts `{variable}`) for agent prompts/welcome, `{variable}`
   for the one-way `announcement_message`. No API or signature change.
 
+## [1.4.0] - 2026-11-21
+
+Campaign hangup controls and cheap live-call polling (mid-call status on Redis).
+
+### Added
+- **Campaigns** — `pause(id, { hangup_active })` / `pause(..., hangup_active=True)`;
+  `hangupActive` / `hangup_active` (`POST …/hangup-active`).
+- **Calls** — `live({ limit })` / `live(limit=…)`, `liveCount` / `live_count`
+  (`GET /calls/live`, `GET /calls/live/count`).
+
+### Changed
+- User-Agent strings bumped to `1.4.0`.
+- Package versions: npm `pollax@1.4.0`, PyPI `pollax==1.4.0`.
+
 ## [1.3.0] - 2026-11-12
 
 Onesaz path-B expansion: close SDK gaps so CRM integrators can use the SDK
