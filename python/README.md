@@ -128,6 +128,10 @@ call = client.calls.retrieve("CA123456")
 # End a call
 client.calls.end("CA123456")
 
+# Live in-flight calls (prefer over list() while active)
+live = client.calls.live(limit=100)
+count = client.calls.live_count()
+
 # Transfer a call
 client.calls.transfer("CA123456", to_number="+1111111111")
 
@@ -156,8 +160,12 @@ campaign = client.campaigns.create(
 # Start campaign
 client.campaigns.start("campaign_123")
 
-# Pause campaign
+# Pause dialing only — or hang up live / ringing legs too
 client.campaigns.pause("campaign_123")
+client.campaigns.pause("campaign_123", hangup_active=True)
+
+# Hang up live legs without pausing dialing
+client.campaigns.hangup_active("campaign_123")
 
 # Get campaign stats
 stats = client.campaigns.get_stats("campaign_123")
