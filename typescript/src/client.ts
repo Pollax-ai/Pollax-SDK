@@ -93,7 +93,7 @@ export class Pollax {
     const headers: Record<string, string> = {
       'Authorization': `Bearer ${config.apiKey}`,
       'Content-Type': 'application/json',
-      'User-Agent': 'Pollax-SDK-TypeScript/1.3.0',
+      'User-Agent': 'Pollax-SDK-TypeScript/1.4.0',
     };
 
     if (config.tenantId) {
