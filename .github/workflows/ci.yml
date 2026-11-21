@@ -33,7 +33,8 @@ jobs:
       - name: Build
         run: npm run build
       - name: Smoke import
-        run: node -e "const { Pollax } = require('./dist/index.js'); new Pollax({ apiKey: 'sk_test_ci' }); console.log('ok')"
+        run: |
+          node -e "const { Pollax } = require('./dist/index.js'); new Pollax({ apiKey: 'sk_test_ci' }); console.log('ok')"
 
   python:
     name: Python
