@@ -14,6 +14,7 @@ jobs:
     defaults:
       run:
         working-directory: typescript
+    # Requires repo secret NPM_TOKEN (Automation token with publish rights).
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -32,6 +33,11 @@ jobs:
   publish-pypi:
     name: Publish PyPI
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # Trusted publishing (OIDC) — preferred when the Pollax project on PyPI
+      # lists this workflow. Falls back to PYPI_TOKEN when that secret is set.
+      id-token: write
     defaults:
       run:
         working-directory: python
@@ -49,6 +55,7 @@ jobs:
         with:
           password: ${{ secrets.PYPI_TOKEN }}
           packages-dir: python/dist
+          skip-existing: true
 
   attach-artifacts:
     name: Attach build notes
